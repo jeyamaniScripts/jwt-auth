@@ -10,7 +10,7 @@ const app = express();
 const loginLimitter = app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000, //15 mins
-    max: 5,
+    max: 50,
     message: "Too Many Request, try again later",
   })
 );
