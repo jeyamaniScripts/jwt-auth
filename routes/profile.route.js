@@ -146,7 +146,7 @@ router.post("/refresh", async (req, res) => {
   }
 });
 
-router.delete("delete/:id", verifyToken, async (req, res) => {
+router.delete("/delete/:id", verifyToken, async (req, res) => {
   const { id, role } = req.params;
   if (role !== "admin") {
     return res
@@ -157,7 +157,7 @@ router.delete("delete/:id", verifyToken, async (req, res) => {
   res.status(200).json({ message: `obiect with id ${id} has been deleted` });
 });
 
-router.put("edit/:id", verifyToken, async (req, res) => {
+router.put("/edit/:id", verifyToken, async (req, res) => {
   if (req.profile.role !== "admin") {
     return res.status(403).json({
       message: `access denied because your are a ${req.profile.role}`,
