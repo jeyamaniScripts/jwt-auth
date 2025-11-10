@@ -7,6 +7,7 @@ const profileSchema = new mongoose.Schema({
   role: { type: String, enum: ["user", "admin"], default: "user" },
   imageUrl: { type: String, default: "" },
   refreshToken: { type: String, default: "" },
+  
 });
 
 const profiles = mongoose.model("profiles", profileSchema);
