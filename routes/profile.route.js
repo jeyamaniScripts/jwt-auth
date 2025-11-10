@@ -98,7 +98,9 @@ router.post("/api/login", loginLimitter, async (req, res) => {
 
     profile.refreshToken = refreshToken;
     await profile.save();
-    res.status(200).json({ id:profile._id,accessToken, refreshToken, role: profile.role });
+    res
+      .status(200)
+      .json({ id: profile._id, accessToken, refreshToken, role: profile.role });
   } catch (error) {
     res.status(500).json({ message: `something went wrong ${error}` });
   }
@@ -176,4 +178,29 @@ router.put("/:id", verifyToken, async (req, res) => {
     .status(200)
     .json({ message: `object with id: ${req.params.id} is edited` });
 });
+
+// GET a single profile by ID — Only admin can access
+router.get("/profile/:id", verifyToken, async (req, res) => {
+  try {
+    // Ensure only admin can access
+    if (req.profile.role !== "admin") {
+      return res.status(403).json({
+        message: `access denied because you are a ${req.profile.role}`,
+      });
+    }
+
+    const profile = await profiles.findById(
+      req.params.id,
+      "-password -refreshToken"
+    );
+    if (!profile) {
+      return res.status(404).json({ message: "profile not found" });
+    }
+
+    res.status(200).json(profile);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 export default router;
