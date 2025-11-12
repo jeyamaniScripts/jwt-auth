@@ -23,6 +23,7 @@ function verifyToken(req, res, next) {
   }
 
   const tokenSignature = authHeader.split(" ")[1];
+  console.log("sig" + tokenSignature);
 
   jwt.verify(tokenSignature, process.env.JWT_SECRET, (err, decoded) => {
     if (err) {
@@ -34,8 +35,9 @@ function verifyToken(req, res, next) {
     }
 
     req.profile = decoded;
+    console.log((req.profile = decoded));
+    next();
   });
-  next();
 }
 
 router.post("/api/register", async (req, res) => {
@@ -71,6 +73,7 @@ router.post("/api/register", async (req, res) => {
 router.post("/api/login", loginLimitter, async (req, res) => {
   try {
     const { email, password } = req.body;
+    // console.log(email, password);
 
     const profile = await profiles.findOne({ email });
     if (!profile) {
@@ -147,17 +150,23 @@ router.post("/refresh", async (req, res) => {
 });
 
 router.delete("/delete/:id", verifyToken, async (req, res) => {
-  const { id, role } = req.params;
-  if (role !== "admin") {
-    return res
-      .status(403)
-      .json({ message: `access denied because you are a ${role}` });
+  console.log(req.params.id);
+  console.log("hhihi");
+  if (req.profile.role !== "admin") {
+    return res.status(403).json({
+      message: `access denied because your are a ${req.profile.role}`,
+    });
   }
-  await profiles.findByIdAndDelete(id);
-  res.status(200).json({ message: `obiect with id ${id} has been deleted` });
+
+  await profiles.findByIdAndDelete(req.params.id);
+  res
+    .status(200)
+    .json({ message: `object with id ${req.params.id} has been deleted` });
 });
 
 router.put("/edit/:id", verifyToken, async (req, res) => {
+  console.log(req);
+
   if (req.profile.role !== "admin") {
     return res.status(403).json({
       message: `access denied because your are a ${req.profile.role}`,
@@ -181,6 +190,8 @@ router.put("/edit/:id", verifyToken, async (req, res) => {
 
 // GET a single profile by ID — Only admin can access
 router.get("/profile/:id", verifyToken, async (req, res) => {
+  console.log("hhihi");
+
   try {
     // Ensure only admin can access
     if (req.profile.role !== "admin") {
